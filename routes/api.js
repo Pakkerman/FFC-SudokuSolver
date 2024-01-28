@@ -12,13 +12,8 @@ module.exports = function (app) {
       return res.json({ error: 'Required field(s) missing' })
     }
 
-    const stringRegex = /[^1-9.]+/
-    if (puzzle.length !== 81) {
-      return res.json({ error: 'Expected puzzle to be 81 characters long' })
-    }
-    if (stringRegex.test(puzzle)) {
-      return res.json({ error: 'Invalid characters in puzzle' })
-    }
+    const validate = solver.validate(puzzle)
+    if (validate != true) return res.json(validate)
 
     const coordinateRegex = /^[A-Ia-i]{1}[1-9]{1}$/
     if (!coordinateRegex.test(req.body.coordinate)) {
@@ -47,24 +42,17 @@ module.exports = function (app) {
   })
 
   app.route('/api/solve').post((req, res) => {
-    console.log('POST /api/solve', puzzleString)
-    const puzzleString = req.body.puzzle
-    if (!puzzleString) return res.json({ error: 'Required field missing' })
+    const puzzle = req.body.puzzle
+    if (!puzzle) return res.json({ error: 'Required field missing' })
 
-    const stringRegex = /[^1-9.]+/
-    if (stringRegex.test(puzzleString)) {
-      return res.json({ error: 'Invalid characters in puzzle' })
-    }
-    if (puzzleString.length !== 81) {
-      return res.json({ error: 'Expected puzzle to be 81 characters long' })
-    }
+    const validate = solver.validate(puzzle)
+    if (validate != true) return res.json(validate)
 
-    const matrix = solver.getMatrix(puzzleString)
+    const matrix = solver.getMatrix(puzzle)
     if (!solver.validate(matrix))
       return res.json({ error: 'Puzzle cannot be solved' })
 
-    const [isSolved, solvedString] = solver.solve(puzzleString)
-    console.log(isSolved, solvedString)
+    const [isSolved, solvedString] = solver.solve(puzzle)
     if (!isSolved) return res.json({ error: 'Puzzle cannot be solved' })
 
     return res.json({ solution: solvedString })
