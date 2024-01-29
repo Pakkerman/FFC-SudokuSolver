@@ -30,8 +30,9 @@ module.exports = function (app) {
     const x = +col - 1
 
     const matrix = solver.getMatrix(puzzle)
-    const conflict = []
+    if (matrix[y][x] === value) return res.json({ valid: true })
 
+    const conflict = []
     if (!solver.checkRowPlacement(matrix, y, x, value)) conflict.push('row')
     if (!solver.checkColPlacement(matrix, y, x, value)) conflict.push('column')
     if (!solver.checkRegionPlacement(matrix, y, x, value))
